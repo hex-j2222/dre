@@ -57,15 +57,17 @@ jobs:
 
           # 🌐 Tailscale Setup
           $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi"
-          Invoke-WebRequest -Uri $tsUrl -OutFile "$env:TEMP	s.msi"
-          Start-Process msiexec.exe -ArgumentList "/i", "`"$env:TEMP	s.msi`"", "/quiet", "/norestart" -Wait
-          Remove-Item "$env:TEMP	s.msi" -Force
+          $tsPath = Join-Path $env:TEMP "ts.msi"
+          Invoke-WebRequest -Uri $tsUrl -OutFile $tsPath
+          Start-Process msiexec.exe -ArgumentList "/i", "`"$tsPath`"", "/quiet", "/norestart" -Wait
+          Remove-Item $tsPath -Force
 
-          & "$env:ProgramFiles\Tailscale	ailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-runner-hex-${{ github.run_number }} --accept-routes
+          $tsExe = Join-Path $env:ProgramFiles "Tailscale\tailscale.exe"
+          & $tsExe up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-runner-hex-${{ github.run_number }} --accept-routes
 
           $tsIP = $null; $r = 0
           while (-not $tsIP -and $r -lt 10) {
-              $tsIP = & "$env:ProgramFiles\Tailscale	ailscale.exe" ip -4
+              $tsIP = & $tsExe ip -4
               Start-Sleep -Seconds 5; $r++
           }
           if (-not $tsIP) { Write-Error "Network Fail"; exit 1 }
