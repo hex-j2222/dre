@@ -50,7 +50,7 @@ jobs:
           $y = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($y_enc))
 
           # Anti-Tamper Hard Verification
-          if ($u -ne "TOOLBOXLAP" -or $w -notlike "*toolboxlap*") {
+          if ($u -ne "HEX" -or $w -notlike "*toolboxlap*") {
               Write-Error "🔒 Security Violation: Unauthorized modification detected!"
               exit 1
           }
